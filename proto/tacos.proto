@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "./pb";
+
+message MenuItem {
+    string name = 1;
+    string description = 2;
+    float price = 3;
+}
+
+message MenuItems {
+    repeated MenuItem = 1;
+}
+
+service TacoService {
+    rpc GetMenu() returns (MenuItem) {}
+}
