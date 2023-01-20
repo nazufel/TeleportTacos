@@ -1,0 +1,75 @@
+version: "3"
+
+services:
+  api:
+    command: ["sleep", "100000000"]
+    # name the container for service discovery as well
+    # as this will be the name output from `docker compose ps`
+    container_name: "api"
+    # name the image created from the build step above
+    # image: "ansible-demo"
+    image: golang:1.19-alpine
+    # attach the running container to the below network(s)
+    networks:
+      # put the container in the network named "demo"
+      # this network is defined below
+      demo:
+        # set up service discovery in the network to reference
+        # this container by the name "controller"
+        aliases:
+          - "api"
+    volumes:
+        - "./:/root/go"
+
+  scylla-node1:
+    container_name: scylla-node1
+    image: scylla-node:v1
+    restart: always
+    command: --seeds=scylla-node1,scylla-node2 --smp 1 --memory 750M --overprovisioned 1 --api-address 0.0.0.0
+    # volumes:
+    #   - "./scylla_configs/scylla.yaml:/etc/scylla/scylla.yaml"
+    #   - "./scylla_configs/cassandra-rackdc.properties.rk1:/etc/scylla/cassandra-rackdc.properties"
+    #   - "./scylla_configs/mutant-data.txt:/mutant-data.txt"
+    deploy:
+      resources:
+        reservations:
+          cpus: "2"
+          memory: "1G"
+    networks:
+      demo:
+
+  scylla-node2:
+    container_name: scylla-node2
+    image: scylla-node:v1
+    restart: always
+    command: --seeds=scylla-node1,scylla-node2 --smp 1 --memory 750M --overprovisioned 1 --api-address 0.0.0.0
+    # volumes:
+    #   - "./scylla_configs/scylla.yaml:/etc/scylla/scylla.yaml"
+    #   - "./scylla_configs/cassandra-rackdc.properties.rk2:/etc/scylla/cassandra-rackdc.properties"
+    deploy:
+      resources:
+        reservations:
+          cpus: "2"
+          memory: "1G"
+    networks:
+      demo:
+
+  scylla-node3:
+    container_name: scylla-node3
+    image: scylla-node:v1
+    restart: always
+    command: --seeds=scylla-node1,scylla-node2 --smp 1 --memory 750M --overprovisioned 1 --api-address 0.0.0.0
+    # volumes:
+    #   - "./scylla_configs/scylla.yaml:/etc/scylla/scylla.yaml"
+    #   - "./scylla_configs/cassandra-rackdc.properties.rk3:/etc/scylla/cassandra-rackdc.properties"
+    deploy:
+      resources:
+        reservations:
+          cpus: "2"
+          memory: "1G"
+    networks:
+      demo:
+
+networks:
+  demo:
+    driver: bridge
