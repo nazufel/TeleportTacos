@@ -1,4 +1,4 @@
-module github.com/TeleportTacos
+module github.com/teleporttacos
 
 go 1.19
 
