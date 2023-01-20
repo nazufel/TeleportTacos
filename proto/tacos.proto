@@ -10,10 +10,8 @@ message MenuItem {
     float price = 3;
 }
 
-message MenuItems {
-    repeated MenuItem = 1;
-}
+message EmptyRequest {}
 
 service TacoService {
-    rpc GetMenu() returns (MenuItem) {}
+    rpc GetMenu(EmptyRequest) returns (MenuItem) {}
 }

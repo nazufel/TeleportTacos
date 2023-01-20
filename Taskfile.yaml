@@ -1,0 +1,8 @@
+version: '3'
+
+tasks:
+  # build the proto file for go
+  proto:
+    cmds:
+      - protoc -I=./proto --go_out=./proto/ ./proto/tacos.proto
+    dir: '{{.USER_WORKING_DIR}}'
