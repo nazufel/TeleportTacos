@@ -41,24 +41,46 @@ func (da Adapter) CloseDBConnection() {
 // SeedDatabase migrates and seeds the database with some demo data
 func (da Adapter) SeedDatabase() error {
 
+	log.Println("migrating and seeding the db. please wait...")
+
+	// drop keyspace if exists to start from scratch
+	// if err := da.session.Query("DROP KEYSPACE IF EXISTS tacos;"); err != nil {
+	// 	log.Fatalf("unable to drop the keyspace: %v", err)
+
+	// }
+
 	// migrate the database schema
 
 	// create tacos keyspace
-	da.session.Query("CREATE KEYSPACE tacos;").Exec()
+	if err := da.session.Query("CREATE KEYSPACE IF NOT EXISTS tacos WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor': 3};").Exec(); err != nil {
+		log.Fatalf("unable to create keyspace: %v", err)
+	}
 
 	// create table for the menu
-	da.session.Query("CREATE TABLE tacos.menu (id UUID PRIMARY KEY, name text, description text, price float)").Exec()
+	if err := da.session.Query("CREATE TABLE IF NOT EXISTS tacos.menu (id UUID PRIMARY KEY, name text, description text, price float)").Exec(); err != nil {
+		log.Fatalf("unable to create tacos.menu table: %v", err)
+	}
 
 	// seed the taco.menu table
 	menuId := uuid.New()
 
-	menuitem := pb.MenuItem{
+	menuItem := pb.MenuItem{
 		Name:        "The Taco",
 		Description: "Classic taco",
 		Price:       5.00,
 	}
 
-	da.session.Query("INSERT INTO tacos.menu (id, name, description, price) VALUES (%v, %v, %v, %v)", menuId, menuitem.Name, menuitem.Description, menuitem.Price).Exec()
+	err := da.session.Query("INSERT INTO tacos.menu(id, name, description, price) VALUES (?,?,?,?);", menuId, menuItem.Name, menuItem.Description, menuItem.Price).Exec()
+	if err != nil {
+		log.Fatalf("unable to seed tacos.menu table: %v", err)
+	}
+
+	// log.Printf("query: %v", query)
+	// if err := da.session.Query("INSERT INTO tacos.menu (\"id\", \"name\", \"description\", \"price\") VALUES (21245886-5805-4212-b452-a0b8090acf34, 'taco', 'taco', 5.0);").Exec(); err != nil {
+	// 	log.Fatalf("unable to seed tacos.menu table: %v", err)
+	// }
+
+	log.Println("finished migrating and seeding the db.")
 
 	return nil
 }
