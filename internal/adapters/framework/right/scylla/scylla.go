@@ -4,9 +4,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/TeleportTacos/proto/pb"
 	"github.com/gocql/gocql"
 	"github.com/google/uuid"
+	"github.com/teleporttacos/proto/pb"
 )
 
 type Adapter struct {
