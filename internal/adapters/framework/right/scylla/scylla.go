@@ -61,7 +61,6 @@ func (da Adapter) SeedDatabase() error {
 		log.Fatalf("unable to create tacos.menu table: %v", err)
 	}
 
-	// seed the taco.menu table
 	menuId := uuid.New()
 
 	menuItem := pb.MenuItem{
@@ -70,15 +69,11 @@ func (da Adapter) SeedDatabase() error {
 		Price:       5.00,
 	}
 
-	err := da.session.Query("INSERT INTO tacos.menu(id, name, description, price) VALUES (?,?,?,?);", menuId, menuItem.Name, menuItem.Description, menuItem.Price).Exec()
+	// seed the tacos table
+	err := da.session.Query("INSERT INTO tacos.menu(id, name, description, price) VALUES (?,?,?,?);", menuId.String(), menuItem.Name, menuItem.Description, menuItem.Price).Exec()
 	if err != nil {
 		log.Fatalf("unable to seed tacos.menu table: %v", err)
 	}
-
-	// log.Printf("query: %v", query)
-	// if err := da.session.Query("INSERT INTO tacos.menu (\"id\", \"name\", \"description\", \"price\") VALUES (21245886-5805-4212-b452-a0b8090acf34, 'taco', 'taco', 5.0);").Exec(); err != nil {
-	// 	log.Fatalf("unable to seed tacos.menu table: %v", err)
-	// }
 
 	log.Println("finished migrating and seeding the db.")
 
