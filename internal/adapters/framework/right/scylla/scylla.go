@@ -43,11 +43,10 @@ func (da Adapter) SeedDatabase() error {
 
 	log.Println("migrating and seeding the db. please wait...")
 
-	// drop keyspace if exists to start from scratch
-	// if err := da.session.Query("DROP KEYSPACE IF EXISTS tacos;"); err != nil {
-	// 	log.Fatalf("unable to drop the keyspace: %v", err)
-
-	// }
+	// drop keyspace if exists to start this demo from scratch
+	if err := da.session.Query("DROP KEYSPACE IF EXISTS tacos;").Exec(); err != nil {
+		log.Fatalf("unable to drop the keyspace: %v", err)
+	}
 
 	// migrate the database schema
 
