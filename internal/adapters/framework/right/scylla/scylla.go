@@ -39,20 +39,22 @@ func (da Adapter) CloseDBConnection() {
 	os.Exit(0)
 }
 
-func (da Adapter) GetMenuItem() (pb.MenuItem, error) {
+// GetMenuItem retreives a single item from the database
+// in this case, the only item.
+func (da Adapter) GetMenuItem(m pb.MenuItem) (pb.MenuItem, error) {
 
-	var menuItem pb.MenuItem
+	var returnItem pb.MenuItem
 
 	// seed the tacos table
-	err := da.session.Query("SELECT * FROM tacos.menu;").Scan(&menuItem.Id, &menuItem.Description, &menuItem.Name, &menuItem.Price)
+	err := da.session.Query("SELECT * FROM tacos.menu;").Scan(&returnItem.Id, &returnItem.Description, &returnItem.Name, &returnItem.Price)
 	if err != nil {
 		log.Printf("unable get menu item from the database: %v", err)
-		return menuItem, err
+		return returnItem, err
 	}
 
-	log.Printf("found menuItem: %v", menuItem.Name)
+	log.Printf("found menu item: %v", returnItem.Name)
 
-	return menuItem, nil
+	return returnItem, nil
 }
 
 // SeedDatabase migrates and seeds the database with some demo data
@@ -77,7 +79,9 @@ func (da Adapter) SeedDatabase() error {
 		log.Fatalf("unable to create tacos.menu table: %v", err)
 	}
 
-	if err := da.session.Query("CREATE TABLE IF NOT EXISTS tacos.orders (id UUID PRIMARY KEY, count int, created_at timestamp, menu_item text, price float, teleport_alt float, teleport_lat float, teleport_long float, updated_at timestamp)").Exec(); err != nil {
+	// setting a tombstone on this table becuse the demo will be writing a
+	// lot of data really fast and I don't want to be filling up the contianer's volume
+	if err := da.session.Query("CREATE TABLE IF NOT EXISTS tacos.orders (id UUID PRIMARY KEY, count int, created_at timestamp, menu_item text, price float, teleport_alt float, teleport_lat float, teleport_long float, updated_at timestamp) WITH default_time_to_live = 600").Exec(); err != nil {
 		log.Fatalf("unable to create tacos.orders table: %v", err)
 	}
 
@@ -100,12 +104,20 @@ func (da Adapter) SeedDatabase() error {
 	return nil
 }
 
-// // GetMenu returns a list of menu items from the DB
-// func (da Adapter) GetMenu(pb.EmptyRequest) (pb.MenuItem, error) {
+// PlaceOrder func places an order to teleport tacos
+func (da Adapter) PlaceOrder(o pb.Order) error {
 
-// 	var menuitem = pb.MenuItem{}
+	orderId := uuid.New()
 
-// 	da.session.Query()
+	// seed the tacos table
+	// TODO: get timestamps working, skipping for now
+	err := da.session.Query("INSERT INTO tacos.orders(id, count, menu_item, price, teleport_alt, teleport_lat, teleport_long) VALUES (?,?,?,?,?,?,?);", orderId.String(), o.Count, o.MenuItem, o.Price, o.TeleportAlt, o.TeleportLang, o.TeleportLong).Exec()
+	if err != nil {
+		// log.Printf("unable to place order %v: %v", orderId.String(), err)
+		return err
+	}
 
-// 	return menuitem, nil
-// }
+	log.Printf("successfully placed order: %v", orderId)
+
+	return nil
+}
