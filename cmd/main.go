@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/TeleportTacos/internal/adapters/framework/right/scylla"
+	"github.com/teleporttacos/internal/adapters/framework/right/scylla"
 )
 
 func main() {
@@ -16,5 +16,12 @@ func main() {
 	defer db.CloseDBConnection()
 
 	db.SeedDatabase()
+
+	menuItem, err := db.GetMenuItem()
+	if err != nil {
+		log.Printf("error: %v", err)
+	}
+
+	log.Printf("menu item - name: %v, description: %v, price: $%v", menuItem.Name, menuItem.Description, menuItem.Price)
 
 }
