@@ -41,9 +41,9 @@ func (da Adapter) CloseDBConnection() {
 
 // GetMenuItem retreives a single item from the database
 // in this case, the only item.
-func (da Adapter) GetMenuItem(m pb.MenuItem) (pb.MenuItem, error) {
+func (da Adapter) GetMenuItem(m pb.MenuItemRequest) (pb.MenuItemResponse, error) {
 
-	var returnItem pb.MenuItem
+	var returnItem pb.MenuItemResponse
 
 	// seed the tacos table
 	err := da.session.Query("SELECT * FROM tacos.menu;").Scan(&returnItem.Id, &returnItem.Description, &returnItem.Name, &returnItem.Price)
@@ -87,7 +87,7 @@ func (da Adapter) SeedDatabase() error {
 
 	menuId := uuid.New()
 
-	menuItem := pb.MenuItem{
+	menuItem := pb.MenuItemRequest{
 		Name:        "The Taco",
 		Description: "Classic Taco",
 		Price:       5.00,
@@ -105,7 +105,7 @@ func (da Adapter) SeedDatabase() error {
 }
 
 // PlaceOrder func places an order to teleport tacos
-func (da Adapter) PlaceOrder(o pb.Order) error {
+func (da Adapter) PlaceOrder(o pb.OrderRequest) error {
 
 	orderId := uuid.New()
 

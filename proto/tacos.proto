@@ -4,7 +4,14 @@ package pb;
 
 option go_package = "./pb";
 
-message MenuItem {
+message MenuItemRequest {
+    bytes id = 1; 
+    string name = 2;
+    string description = 3;
+    float price = 4;
+}
+
+message MenuItemResponse {
     bytes id = 1; 
     string name = 2;
     string description = 3;
@@ -12,7 +19,7 @@ message MenuItem {
 }
 
 // TODO get timestamp working
-message Order {
+message OrderRequest {
     bytes id = 1;
     int32 count = 2;
     string created_at = 3;
@@ -24,6 +31,11 @@ message Order {
     string updated_at = 9;
 }
 
+message OrderResponse {
+    bytes error = 1;
+}
+
 service TacoService {
-    rpc GetMenu(MenuItem) returns (MenuItem) {}
+    rpc GetMenuItem(MenuItemRequest) returns (MenuItemResponse) {}
+    rpc PlaceOrder(OrderRequest) returns (OrderResponse) {}
 }
