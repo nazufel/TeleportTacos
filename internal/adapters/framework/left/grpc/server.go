@@ -23,7 +23,7 @@ func (a Adapter) Run() {
 
 	listen, err := net.Listen("tcp", ":9999")
 	if err != nil {
-		log.Fatalf("failed to listen on port 9999", err)
+		log.Fatalf("failed to listen on port 9999: %v", err)
 	}
 
 	tacoServiceServer := a
