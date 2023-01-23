@@ -3,9 +3,6 @@ package main
 import (
 	"log"
 
-	// application
-
-	// adapters
 	rpc "github.com/teleporttacos/internal/adapters/framework/left/grpc"
 	"github.com/teleporttacos/internal/adapters/framework/left/http"
 	"github.com/teleporttacos/internal/adapters/framework/right/scylla"
@@ -15,6 +12,7 @@ import (
 
 func main() {
 
+	// wire up db
 	dbAdapter, err := scylla.NewAdapter()
 	if err != nil {
 		log.Fatalf("failed to connect to DB - %v", err)
@@ -24,41 +22,20 @@ func main() {
 
 	dbAdapter.SeedDatabase()
 
+	// wire up the core layer
 	core := geo.New()
 
+	// wire up the api layer
 	appAPI := api.NewApplication(dbAdapter, core)
 
+	// wire up and run http server
 	httpAdapter := http.NewAdapter()
 
+	// run an http sever in another thread to
+	// access the Prometheus exporter metrics
 	go httpAdapter.Run()
 
+	// wire up and run grpc server
 	gRPCAdapter := rpc.NewAdapter(appAPI)
 	gRPCAdapter.Run()
-	// db, err := scylla.NewAdapter()
-	// if err != nil {
-	// 	log.Fatalf("cannot connect to scylla: %v", err)
-	// }
-
-	// defer db.CloseDBConnection()
-
-	// menuItem, err := db.GetMenuItem(pb.MenuItem{})
-	// if err != nil {
-	// 	log.Printf("error: %v", err)
-	// }
-
-	// log.Printf("menu item - name: %v, description: %v, price: $%v", menuItem.Name, menuItem.Description, menuItem.Price)
-
-	// newOrder := pb.Order{
-	// 	Count:        1,
-	// 	MenuItem:     "The Taco",
-	// 	Price:        5.00,
-	// 	TeleportAlt:  123.87,
-	// 	TeleportLat: 33.45,
-	// 	TeleportLong: 27.98,
-	// }
-
-	// err = db.PlaceOrder(newOrder)
-	// if err != nil {
-	// 	log.Printf("unable to place order: %v", err)
-	// }
 }

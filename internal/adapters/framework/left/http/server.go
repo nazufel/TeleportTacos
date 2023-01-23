@@ -15,6 +15,15 @@ func NewAdapter() *Adapter {
 
 func (a Adapter) Run() {
 
+	// // Create non-global registry.
+	// reg := prometheus.NewRegistry()
+
+	// // Add go runtime metrics and process collectors.
+	// reg.MustRegister(
+	// 	collectors.NewGoCollector(),
+	// 	collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
+	// )
+
 	http.Handle("/metrics", promhttp.Handler())
 
 	log.Println("serving http on port 9080")

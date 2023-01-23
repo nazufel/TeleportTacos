@@ -45,10 +45,21 @@ func (da Adapter) GetMenuItem(m *pb.MenuItemRequest) (*pb.MenuItemResponse, erro
 
 	var returnItem pb.MenuItemResponse
 
+	// define a counter for CQL SELECT errors
+	// var (
+	// 	selectErrors = promauto.NewCounter(prometheus.CounterOpts{
+	// 		Name: "teleport_tacos_cql_select_error_count",
+	// 		Help: "The total number of CQL SELECT query errors",
+	// 	})
+	// )
+	// selectErrors.Inc()
 	// seed the tacos table
 	err := da.session.Query("SELECT * FROM tacos.menu;").Scan(&returnItem.Id, &returnItem.Description, &returnItem.Name, &returnItem.Price)
 	if err != nil {
 		log.Printf("unable get menu item from the database: %v", err)
+
+		// increase a custom prometheus counter in the event of error
+
 		return &returnItem, err
 	}
 
