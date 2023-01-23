@@ -5,11 +5,10 @@ tasks:
   proto:
     cmds:
       - protoc -I=./proto --go_out=./proto/ --go-grpc_opt=paths=source_relative --go-grpc_out=require_unimplemented_servers=false:./proto/pb ./proto/tacos.proto
-    dir: '{{.USER_WORKING_DIR}}'
 
+  build-server:
+    cmds:
+      - docker build -t teleporttacos:v1 -f ./cmd/server/Dockerfile .
 
-- name: "start scylla-server"
-  ansible.builtin.systemd:
-    enabled: true
-    name: "scylla-server"
-    state: "started"
+dir: '{{.USER_WORKING_DIR}}'
+    

@@ -24,7 +24,7 @@ message OrderRequest {
     int32 count = 2;
     string created_at = 3;
     string menu_item = 4;
-    float price = 5;
+    float payment = 5;
     float teleport_alt = 6;
     float teleport_lat = 7;
     float teleport_long = 8;
