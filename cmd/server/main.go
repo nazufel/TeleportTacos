@@ -21,7 +21,7 @@ func main() {
 
 	defer dbAdapter.CloseDBConnection()
 
-	// dbAdapter.SeedDatabase()
+	dbAdapter.SeedDatabase()
 
 	core := geo.New()
 

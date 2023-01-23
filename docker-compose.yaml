@@ -21,6 +21,26 @@ services:
     volumes:
         - "./:/root/go"
 
+  client:
+    command: ["sleep", "100000000"]
+    # name the container for service discovery as well
+    # as this will be the name output from `docker compose ps`
+    container_name: "client"
+    # name the image created from the build step above
+    # image: "ansible-demo"
+    image: golang:1.19-alpine
+    # attach the running container to the below network(s)
+    networks:
+      # put the container in the network named "demo"
+      # this network is defined below
+      demo:
+        # set up service discovery in the network to reference
+        # this container by the name "controller"
+        aliases:
+          - "client"
+    volumes:
+        - "./:/root/go"
+
   scylla-node1:
     container_name: scylla-node1
     image: scylla-node:v1

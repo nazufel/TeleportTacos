@@ -81,7 +81,7 @@ func (da Adapter) SeedDatabase() error {
 
 	// setting a tombstone on this table becuse the demo will be writing a
 	// lot of data really fast and I don't want to be filling up the contianer's volume
-	if err := da.session.Query("CREATE TABLE IF NOT EXISTS tacos.orders (id UUID PRIMARY KEY, count int, created_at timestamp, menu_item text, price float, teleport_alt float, teleport_lat float, teleport_long float, updated_at timestamp) WITH default_time_to_live = 600").Exec(); err != nil {
+	if err := da.session.Query("CREATE TABLE IF NOT EXISTS tacos.orders (id UUID PRIMARY KEY, count int, created_at timestamp, menu_item text, payment float, teleport_alt float, teleport_lat float, teleport_long float, updated_at timestamp) WITH default_time_to_live = 600").Exec(); err != nil {
 		log.Fatalf("unable to create tacos.orders table: %v", err)
 	}
 
@@ -114,7 +114,7 @@ func (da Adapter) PlaceOrder(o *pb.OrderRequest) (*pb.OrderResponse, error) {
 	var res pb.OrderResponse
 	// seed the tacos table
 	// TODO: get timestamps working, skipping for now
-	err := da.session.Query("INSERT INTO tacos.orders(id, count, menu_item, price, teleport_alt, teleport_lat, teleport_long) VALUES (?,?,?,?,?,?,?);", orderId.String(), o.Count, o.MenuItem, o.Payment, o.TeleportAlt, o.TeleportLat, o.TeleportLong).Exec()
+	err := da.session.Query("INSERT INTO tacos.orders(id, count, menu_item, payment, teleport_alt, teleport_lat, teleport_long) VALUES (?,?,?,?,?,?,?);", orderId.String(), o.Count, o.MenuItem, o.Payment, o.TeleportAlt, o.TeleportLat, o.TeleportLong).Exec()
 	if err != nil {
 		// log.Printf("unable to place order %v: %v", orderId.String(), err)
 		return &res, err
