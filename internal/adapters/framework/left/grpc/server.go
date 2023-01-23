@@ -3,6 +3,7 @@ package rpc
 import (
 	"log"
 	"net"
+	"os"
 
 	"github.com/teleporttacos/internal/ports"
 	"github.com/teleporttacos/proto/pb"
@@ -21,17 +22,19 @@ func NewAdapter(api ports.APIPort) *Adapter {
 func (a Adapter) Run() {
 	var err error
 
-	listen, err := net.Listen("tcp", ":9999")
+	listenPort := ":" + os.Getenv("GRPC_SERVER_LISTEN_PORT")
+
+	listen, err := net.Listen("tcp", listenPort)
 	if err != nil {
-		log.Fatalf("failed to listen on port 9999: %v", err)
+		log.Fatalf("failed to listen on port %v - %v", listenPort, err)
 	}
 
 	tacoServiceServer := a
 	grpcServer := grpc.NewServer()
 	pb.RegisterTacoServiceServer(grpcServer, tacoServiceServer)
 
-	log.Printf("serving grpc server on port: 9999")
+	log.Printf("serving grpc server on port: %v", listenPort)
 	if err := grpcServer.Serve(listen); err != nil {
-		log.Fatalf("failed to serve grpc server on port 9999: %v", err)
+		log.Fatalf("failed to serve grpc server on port %v - %v", listenPort, err)
 	}
 }

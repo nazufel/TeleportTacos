@@ -3,6 +3,7 @@ package http
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -26,8 +27,10 @@ func (a Adapter) Run() {
 
 	http.Handle("/metrics", promhttp.Handler())
 
-	log.Println("serving http on port 9080")
-	if err := http.ListenAndServe(":9080", nil); err != nil {
-		log.Fatalf("unable to serve http at 9080: %v", err)
+	httpPort := ":" + os.Getenv("HTTP_SERVER_LISTEN_PORT")
+
+	log.Printf("serving http on port %v", httpPort)
+	if err := http.ListenAndServe(httpPort, nil); err != nil {
+		log.Fatalf("unable to serve http at %v : %v", httpPort, err)
 	}
 }

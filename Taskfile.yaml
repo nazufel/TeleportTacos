@@ -1,14 +1,21 @@
 version: '3'
 
 tasks:
+
+  # build the client's Docker image
+  build-client:
+    cmds:
+      - docker build -t teleporttacos/client:v2 -f ./cmd/client/Dockerfile .
+
+
+  # build the server's Docker image
+  build-server:
+    cmds:
+      - docker build -t teleporttacos/server:v1 -f ./cmd/server/Dockerfile .
+
   # build the proto file for go
   proto:
     cmds:
       - protoc -I=./proto --go_out=./proto/ --go-grpc_opt=paths=source_relative --go-grpc_out=require_unimplemented_servers=false:./proto/pb ./proto/tacos.proto
-
-  build-server:
-    cmds:
-      - docker build -t teleporttacos:v1 -f ./cmd/server/Dockerfile .
-
 dir: '{{.USER_WORKING_DIR}}'
     

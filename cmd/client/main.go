@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/teleporttacos/proto/pb"
@@ -12,7 +13,9 @@ import (
 
 func main() {
 
-	conn, err := grpc.Dial("api:9999", grpc.WithInsecure(), grpc.WithBlock())
+	apiServerURL := os.Getenv("API_SERVER_URL") + ":" + os.Getenv("GRPC_SERVER_LISTEN_PORT")
+
+	conn, err := grpc.Dial(apiServerURL, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("unable to connect to server: %v", err)
 	}
