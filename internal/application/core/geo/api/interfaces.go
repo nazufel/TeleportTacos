@@ -1,6 +1,8 @@
 package api
 
+import "github.com/teleporttacos/proto/pb"
+
 // Geo
 type Geo interface {
-	CheckForZeroCoordinates(alt, lat, long float32) error
+	CheckForZeroCoordinates(*pb.OrderRequest) error
 }

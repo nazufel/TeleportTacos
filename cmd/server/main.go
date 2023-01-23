@@ -21,7 +21,7 @@ func main() {
 
 	defer dbAdapter.CloseDBConnection()
 
-	dbAdapter.SeedDatabase()
+	// dbAdapter.SeedDatabase()
 
 	core := geo.New()
 
@@ -48,7 +48,7 @@ func main() {
 	// 	MenuItem:     "The Taco",
 	// 	Price:        5.00,
 	// 	TeleportAlt:  123.87,
-	// 	TeleportLang: 33.45,
+	// 	TeleportLat: 33.45,
 	// 	TeleportLong: 27.98,
 	// }
 

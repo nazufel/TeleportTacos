@@ -2,7 +2,11 @@
 
 package geo
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/teleporttacos/proto/pb"
+)
 
 // Geo struct implements the Geo interface
 type Geo struct{}
@@ -16,8 +20,8 @@ var ZeroCoordinatesError = errors.New("passed coordinates are: 0.0, 0.0, 0.0. Ca
 
 // CheckForZeroCoordinates check if the passed coordinate passed are zero lat, long, altatude
 // business rule doesn't not allow to teleport tacos to 0.0, 0.0, 0.0
-func (g Geo) CheckForZeroCoordinates(lat, long, alt float32) error {
-	if lat == 0.0 && long == 0.0 && alt == 0.0 {
+func (g Geo) CheckForZeroCoordinates(o *pb.OrderRequest) error {
+	if o.TeleportAlt == 0.0 && o.TeleportLat == 0.0 && o.TeleportLong == 0.0 {
 		return ZeroCoordinatesError
 	}
 

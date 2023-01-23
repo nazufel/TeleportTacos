@@ -109,10 +109,12 @@ func (da Adapter) PlaceOrder(o *pb.OrderRequest) (*pb.OrderResponse, error) {
 
 	orderId := uuid.New()
 
+	log.Printf("sumitting order: %v to the database", orderId)
+
 	var res pb.OrderResponse
 	// seed the tacos table
 	// TODO: get timestamps working, skipping for now
-	err := da.session.Query("INSERT INTO tacos.orders(id, count, menu_item, price, teleport_alt, teleport_lat, teleport_long) VALUES (?,?,?,?,?,?,?);", orderId.String(), o.Count, o.MenuItem, o.Price, o.TeleportAlt, o.TeleportLang, o.TeleportLong).Exec()
+	err := da.session.Query("INSERT INTO tacos.orders(id, count, menu_item, price, teleport_alt, teleport_lat, teleport_long) VALUES (?,?,?,?,?,?,?);", orderId.String(), o.Count, o.MenuItem, o.Payment, o.TeleportAlt, o.TeleportLat, o.TeleportLong).Exec()
 	if err != nil {
 		// log.Printf("unable to place order %v: %v", orderId.String(), err)
 		return &res, err

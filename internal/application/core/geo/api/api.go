@@ -16,31 +16,41 @@ func NewApplication(db ports.DBPort, geo Geo) *Application {
 	return &Application{db: db, geo: geo}
 }
 
-// CheckForZeroCoordinates checks the business rules if we can teleport tacos to these coordinates
-func (a Application) CheckForZeroCoordinates(alt, lat, long float32) error {
-
-	err := a.geo.CheckForZeroCoordinates(alt, lat, long)
-	if err != nil {
-		log.Printf("unable to teleport tacos to alt: 0, lat: 0, long: 0")
-	}
-
-	return nil
-}
-
 // GetMenuItem gets a menu item
 func (a Application) GetMenuItem(m *pb.MenuItemRequest) (*pb.MenuItemResponse, error) {
 
-	var err error
-	var res pb.MenuItemResponse
+	// TODO: handle error and respond with grpc error
+	menuItem, _ := a.db.GetMenuItem(m)
 
-	return &res, err
+	res := pb.MenuItemResponse{
+		Id:          menuItem.Id,
+		Name:        menuItem.Name,
+		Description: menuItem.Description,
+		Price:       menuItem.Price,
+	}
+
+	return &res, nil
 }
 
 // PlaceOrder gets a menu item
 func (a Application) PlaceOrder(m *pb.OrderRequest) (*pb.OrderResponse, error) {
 
-	var err error
 	var res pb.OrderResponse
 
-	return &res, err
+	// validate order has valid teleportation coordinates
+	err := a.geo.CheckForZeroCoordinates(m)
+	if err != nil {
+		log.Printf("requested order does not have valid coordinates. received alt: %v, lat: %v, long: %v", m.TeleportAlt, m.TeleportLat, m.TeleportLong)
+
+		return &res, err
+	}
+
+	// valid coordinates can place an order in the db
+	order, err := a.db.PlaceOrder(m)
+	if err != nil {
+		log.Printf("error getting record from db: %v", err)
+		return &res, err
+	}
+
+	return order, err
 }
