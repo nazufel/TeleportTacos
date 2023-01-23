@@ -18,6 +18,8 @@ services:
         # this container by the name "controller"
         aliases:
           - "api"
+    ports:
+      - 9080:9080
     volumes:
         - "./:/root/go"
 

@@ -7,6 +7,7 @@ import (
 
 	// adapters
 	rpc "github.com/teleporttacos/internal/adapters/framework/left/grpc"
+	"github.com/teleporttacos/internal/adapters/framework/left/http"
 	"github.com/teleporttacos/internal/adapters/framework/right/scylla"
 	"github.com/teleporttacos/internal/application/core/geo"
 	"github.com/teleporttacos/internal/application/core/geo/api"
@@ -26,6 +27,10 @@ func main() {
 	core := geo.New()
 
 	appAPI := api.NewApplication(dbAdapter, core)
+
+	httpAdapter := http.NewAdapter()
+
+	go httpAdapter.Run()
 
 	gRPCAdapter := rpc.NewAdapter(appAPI)
 	gRPCAdapter.Run()

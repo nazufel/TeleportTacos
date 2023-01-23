@@ -23,6 +23,7 @@ func main() {
 
 	c := pb.NewTacoServiceClient(conn)
 
+	// generate load on the system
 	for {
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
