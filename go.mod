@@ -21,3 +21,4 @@ require (
 )
 
 // replace github.com/teleporttacos/proto/pb => ../proto/pb
+replace github.com/teleporttacos/ports => ./internal/ports

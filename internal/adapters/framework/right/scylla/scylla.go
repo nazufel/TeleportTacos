@@ -41,7 +41,7 @@ func (da Adapter) CloseDBConnection() {
 
 // GetMenuItem retreives a single item from the database
 // in this case, the only item.
-func (da Adapter) GetMenuItem(m pb.MenuItemRequest) (pb.MenuItemResponse, error) {
+func (da Adapter) GetMenuItem(m *pb.MenuItemRequest) (*pb.MenuItemResponse, error) {
 
 	var returnItem pb.MenuItemResponse
 
@@ -49,12 +49,12 @@ func (da Adapter) GetMenuItem(m pb.MenuItemRequest) (pb.MenuItemResponse, error)
 	err := da.session.Query("SELECT * FROM tacos.menu;").Scan(&returnItem.Id, &returnItem.Description, &returnItem.Name, &returnItem.Price)
 	if err != nil {
 		log.Printf("unable get menu item from the database: %v", err)
-		return returnItem, err
+		return &returnItem, err
 	}
 
 	log.Printf("found menu item: %v", returnItem.Name)
 
-	return returnItem, nil
+	return &returnItem, nil
 }
 
 // SeedDatabase migrates and seeds the database with some demo data
@@ -105,19 +105,20 @@ func (da Adapter) SeedDatabase() error {
 }
 
 // PlaceOrder func places an order to teleport tacos
-func (da Adapter) PlaceOrder(o pb.OrderRequest) error {
+func (da Adapter) PlaceOrder(o *pb.OrderRequest) (*pb.OrderResponse, error) {
 
 	orderId := uuid.New()
 
+	var res pb.OrderResponse
 	// seed the tacos table
 	// TODO: get timestamps working, skipping for now
 	err := da.session.Query("INSERT INTO tacos.orders(id, count, menu_item, price, teleport_alt, teleport_lat, teleport_long) VALUES (?,?,?,?,?,?,?);", orderId.String(), o.Count, o.MenuItem, o.Price, o.TeleportAlt, o.TeleportLang, o.TeleportLong).Exec()
 	if err != nil {
 		// log.Printf("unable to place order %v: %v", orderId.String(), err)
-		return err
+		return &res, err
 	}
 
 	log.Printf("successfully placed order: %v", orderId)
 
-	return nil
+	return &res, nil
 }

@@ -1,17 +1,40 @@
 package main
 
-import rpc "github.com/teleporttacos/internal/adapters/framework/left/grpc"
+import (
+	"log"
+
+	// application
+
+	// adapters
+	rpc "github.com/teleporttacos/internal/adapters/framework/left/grpc"
+	"github.com/teleporttacos/internal/adapters/framework/right/scylla"
+	"github.com/teleporttacos/internal/application/core/geo"
+	"github.com/teleporttacos/internal/application/core/geo/api"
+)
 
 func main() {
 
+	dbAdapter, err := scylla.NewAdapter()
+	if err != nil {
+		log.Fatalf("failed to connect to DB - %v", err)
+	}
+
+	defer dbAdapter.CloseDBConnection()
+
+	dbAdapter.SeedDatabase()
+
+	core := geo.New()
+
+	appAPI := api.NewApplication(dbAdapter, core)
+
+	gRPCAdapter := rpc.NewAdapter(appAPI)
+	gRPCAdapter.Run()
 	// db, err := scylla.NewAdapter()
 	// if err != nil {
 	// 	log.Fatalf("cannot connect to scylla: %v", err)
 	// }
 
 	// defer db.CloseDBConnection()
-
-	// db.SeedDatabase()
 
 	// menuItem, err := db.GetMenuItem(pb.MenuItem{})
 	// if err != nil {
@@ -33,7 +56,4 @@ func main() {
 	// if err != nil {
 	// 	log.Printf("unable to place order: %v", err)
 	// }
-
-	gRPCAdapter := rpc.NewAdapter()
-	gRPCAdapter.Run()
 }

@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/teleporttacos/internal/ports"
+	"github.com/teleporttacos/proto/pb"
 )
 
 type Application struct {
@@ -24,4 +25,22 @@ func (a Application) CheckForZeroCoordinates(alt, lat, long float32) error {
 	}
 
 	return nil
+}
+
+// GetMenuItem gets a menu item
+func (a Application) GetMenuItem(m *pb.MenuItemRequest) (*pb.MenuItemResponse, error) {
+
+	var err error
+	var res pb.MenuItemResponse
+
+	return &res, err
+}
+
+// PlaceOrder gets a menu item
+func (a Application) PlaceOrder(m *pb.OrderRequest) (*pb.OrderResponse, error) {
+
+	var err error
+	var res pb.OrderResponse
+
+	return &res, err
 }
