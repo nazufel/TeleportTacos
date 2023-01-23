@@ -5,13 +5,13 @@ tasks:
   # build the client's Docker image
   build-client:
     cmds:
-      - docker build -t teleporttacos/client:v2 -f ./cmd/client/Dockerfile .
+      - docker build -t teleporttacos/client:v3 -f ./cmd/client/Dockerfile .
 
 
   # build the server's Docker image
   build-server:
     cmds:
-      - docker build -t teleporttacos/server:v1 -f ./cmd/server/Dockerfile .
+      - docker build -t teleporttacos/server:v3 -f ./cmd/server/Dockerfile .
 
   # build the proto file for go
   proto:

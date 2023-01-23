@@ -54,17 +54,39 @@ func (da Adapter) GetMenuItem(m *pb.MenuItemRequest) (*pb.MenuItemResponse, erro
 	// )
 	// selectErrors.Inc()
 	// seed the tacos table
-	err := da.session.Query("SELECT * FROM tacos.menu;").Scan(&returnItem.Id, &returnItem.Description, &returnItem.Name, &returnItem.Price)
-	if err != nil {
-		log.Printf("unable get menu item from the database: %v", err)
 
-		// increase a custom prometheus counter in the event of error
+	// set max retries
+	maxQueryTries := 3
 
-		return &returnItem, err
+	// loop for the retries
+	for i := 0; i != maxQueryTries; i++ {
+
+		// scope error to outside of conditional
+		var err error
+
+		// if loop has reached max retries, return with error
+		if i == maxQueryTries {
+			log.Printf("unable get menu item from the database after %v number of retries: %v", i, err)
+
+			// increase a custom prometheus counter in the event of error
+
+			return &returnItem, err
+		}
+
+		// run query
+		err = da.session.Query("SELECT * FROM tacos.menu;").Scan(&returnItem.Id, &returnItem.Description, &returnItem.Name, &returnItem.Price)
+
+		// if query failed, wait and restart the loop
+		if err != nil {
+			time.Sleep(100 * time.Millisecond)
+		}
+
+		// if no error, break out of the loop since it worked
+		if err == nil {
+			break
+		}
 	}
-
 	log.Printf("found menu item: %v", returnItem.Name)
-
 	return &returnItem, nil
 }
 
@@ -123,7 +145,6 @@ func (da Adapter) PlaceOrder(o *pb.OrderRequest) (*pb.OrderResponse, error) {
 	log.Printf("sumitting order: %v to the database", orderId)
 
 	var res pb.OrderResponse
-	// seed the tacos table
 	// TODO: get timestamps working, skipping for now
 	err := da.session.Query("INSERT INTO tacos.orders(id, count, menu_item, payment, teleport_alt, teleport_lat, teleport_long) VALUES (?,?,?,?,?,?,?);", orderId.String(), o.Count, o.MenuItem, o.Payment, o.TeleportAlt, o.TeleportLat, o.TeleportLong).Exec()
 	if err != nil {

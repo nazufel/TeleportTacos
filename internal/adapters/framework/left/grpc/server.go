@@ -33,7 +33,7 @@ func (a Adapter) Run() {
 	grpcServer := grpc.NewServer()
 	pb.RegisterTacoServiceServer(grpcServer, tacoServiceServer)
 
-	log.Printf("serving grpc server on port: %v", listenPort)
+	log.Printf("serving grpc on port: %v", listenPort)
 	if err := grpcServer.Serve(listen); err != nil {
 		log.Fatalf("failed to serve grpc server on port %v - %v", listenPort, err)
 	}
