@@ -26,13 +26,15 @@ func NewAdapter() (*Adapter, error) {
 		return nil, err
 	}
 
+	log.Printf("successfully connected to scylla nodes: %v", cluster.Hosts)
+
 	return &Adapter{session: session}, nil
 }
 
 // CloseDBConnection closes the DB connection
 func (da Adapter) CloseDBConnection() {
 
-	log.Println("closing the db")
+	log.Println("closing the db connection")
 	da.session.Close()
 
 	// shut down the service since it can't do anything without a DB
@@ -45,48 +47,15 @@ func (da Adapter) GetMenuItem(m *pb.MenuItemRequest) (*pb.MenuItemResponse, erro
 
 	var returnItem pb.MenuItemResponse
 
-	// define a counter for CQL SELECT errors
-	// var (
-	// 	selectErrors = promauto.NewCounter(prometheus.CounterOpts{
-	// 		Name: "teleport_tacos_cql_select_error_count",
-	// 		Help: "The total number of CQL SELECT query errors",
-	// 	})
-	// )
-	// selectErrors.Inc()
-	// seed the tacos table
+	// run query
+	err := da.session.Query("SELECT * FROM tacos.menu;").Scan(&returnItem.Id, &returnItem.Description, &returnItem.Name, &returnItem.Price)
 
-	// set max retries
-	maxQueryTries := 3
-
-	// loop for the retries
-	for i := 0; i != maxQueryTries; i++ {
-
-		// scope error to outside of conditional
-		var err error
-
-		// if loop has reached max retries, return with error
-		if i == maxQueryTries {
-			log.Printf("unable get menu item from the database after %v number of retries: %v", i, err)
-
-			// increase a custom prometheus counter in the event of error
-
-			return &returnItem, err
-		}
-
-		// run query
-		err = da.session.Query("SELECT * FROM tacos.menu;").Scan(&returnItem.Id, &returnItem.Description, &returnItem.Name, &returnItem.Price)
-
-		// if query failed, wait and restart the loop
-		if err != nil {
-			time.Sleep(100 * time.Millisecond)
-		}
-
-		// if no error, break out of the loop since it worked
-		if err == nil {
-			break
-		}
+	// if query failed, wait and restart the loop
+	if err != nil {
+		log.Printf("failed to query database: %v", err)
 	}
-	log.Printf("found menu item: %v", returnItem.Name)
+
+	log.Printf("retreived menu item name: %v", returnItem.Name)
 	return &returnItem, nil
 }
 

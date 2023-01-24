@@ -1,42 +1,31 @@
 version: "3"
 
 services:
-  api:
-    command: ["sleep", "100000000"]
-    # name the container for service discovery as well
-    # as this will be the name output from `docker compose ps`
-    container_name: "api"
-    # name the image created from the build step above
-    # image: "ansible-demo"
-    environment:
-      GRPC_SERVER_LISTEN_PORT: "9999"
-      HTTP_SERVER_LISTEN_PORT: "9080"
-    image: golang:1.19-alpine
-    # attach the running container to the below network(s)
-    networks:
-      # put the container in the network named "demo"
-      # this network is defined below
-      demo:
-        # set up service discovery in the network to reference
-        # this container by the name "controller"
-        aliases:
-          - "api"
-    ports:
-      - 9080:9080
-    volumes:
-        - "./:/root/go"
-
   client:
-    command: ["sleep", "100000000"]
+    command: ["sleep", "10000"]
+    container_name: "robo-client"
+    image: "teleporttacos/client:v5"
+    depends_on:
+      - server
+    environment:
+      API_SERVER_URL: "server"
+      GRPC_SERVER_LISTEN_PORT: "9999"
+    networks:
+      demo:
+        aliases: 
+          - "robo-client"
+    volumes:
+        - "./:/root/go"
+ # controller container holds ansible
+  controller:
+    # the command to run when the container is executed
+    command: ["/usr/bin/sleep", "100000000"]
     # name the container for service discovery as well
     # as this will be the name output from `docker compose ps`
-    container_name: "client"
+    container_name: "controller"
     # name the image created from the build step above
     # image: "ansible-demo"
-    environment:
-      API_SERVER_URL: "api"
-      GRPC_SERVER_LISTEN_PORT: "9999"
-    image: golang:1.19-alpine
+    image: scylla-node:v1
     # attach the running container to the below network(s)
     networks:
       # put the container in the network named "demo"
@@ -45,9 +34,15 @@ services:
         # set up service discovery in the network to reference
         # this container by the name "controller"
         aliases:
-          - "client"
+          - "controller"
+    # attach any volumes inside of the container. This is
+    # done so that ansible files on the host system
+    # can be accessed from within the controller container
+    # since ansible will be ran from here becuase it
+    # will be on the same docker network as the other 
+    # containers being orchestrated and demonstrated.
     volumes:
-        - "./:/root/go"
+        - "./:/root/ansible"
 
   scylla-node1:
     container_name: scylla-node1
@@ -97,6 +92,27 @@ services:
           memory: "1G"
     networks:
       demo:
+
+  server:
+    command: ["sleep", "10000"]
+    container_name: "server"
+    image: "teleporttacos/server:v5"
+    depends_on:
+      - scylla-node1
+      - scylla-node2
+      - scylla-node3
+    environment:
+      GRPC_SERVER_LISTEN_PORT: "9999"
+      HTTP_SERVER_LISTEN_PORT: "9080"
+      # SCYLLA_SERVERS: '"scylla-node1", "scylla-node2, "scylla-node3"'
+    networks:
+      demo:
+        aliases: 
+          - "server"
+    ports:
+      - 9080:9080
+    volumes:
+        - "./:/root/go"
 
 networks:
   demo:
