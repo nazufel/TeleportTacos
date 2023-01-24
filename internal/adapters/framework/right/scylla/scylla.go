@@ -55,7 +55,7 @@ func (da Adapter) GetMenuItem(m *pb.MenuItemRequest) (*pb.MenuItemResponse, erro
 		log.Printf("failed to query database: %v", err)
 	}
 
-	log.Printf("retreived menu item name: %v", returnItem.Name)
+	log.Printf("retrieved menu item name: %v", returnItem.Name)
 	return &returnItem, nil
 }
 
@@ -111,7 +111,7 @@ func (da Adapter) PlaceOrder(o *pb.OrderRequest) (*pb.OrderResponse, error) {
 
 	orderId := uuid.New()
 
-	log.Printf("sumitting order: %v to the database", orderId)
+	log.Printf("submitting order: %v to the database", orderId)
 
 	var res pb.OrderResponse
 	// TODO: get timestamps working, skipping for now
