@@ -1,7 +1,7 @@
 version: '3'
 
 env:
-  IMAGE_VERSION: "v1"
+  IMAGE_VERSION: "v2"
 
 tasks:
 
