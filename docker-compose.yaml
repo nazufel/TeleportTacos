@@ -16,33 +16,6 @@ services:
           - "robo-client"
     volumes:
         - "./:/root/go"
- # controller container holds ansible
-  controller:
-    # the command to run when the container is executed
-    command: ["/usr/bin/sleep", "100000000"]
-    # name the container for service discovery as well
-    # as this will be the name output from `docker compose ps`
-    container_name: "controller"
-    # name the image created from the build step above
-    # image: "ansible-demo"
-    image: scylla-node:v1
-    # attach the running container to the below network(s)
-    networks:
-      # put the container in the network named "demo"
-      # this network is defined below
-      demo:
-        # set up service discovery in the network to reference
-        # this container by the name "controller"
-        aliases:
-          - "controller"
-    # attach any volumes inside of the container. This is
-    # done so that ansible files on the host system
-    # can be accessed from within the controller container
-    # since ansible will be ran from here becuase it
-    # will be on the same docker network as the other 
-    # containers being orchestrated and demonstrated.
-    volumes:
-        - "./:/root/ansible"
 
   scylla-node1:
     container_name: scylla-node1
